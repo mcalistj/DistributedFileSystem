@@ -17,8 +17,8 @@ class FileRequests
             return
 
         when /\APUT_FILE:\s*(\w*\.\w*).*\s*\z/
-            @filesystem.put($1, client)
-            return
+            return @filesystem.put($1, client)
+            
 
         else
             client.puts "ERROR_CODE:4xx (Even though this isn't HTTP)"
