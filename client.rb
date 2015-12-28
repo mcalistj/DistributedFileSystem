@@ -38,6 +38,6 @@ class Client
 end
 
 hostname = "localhost"
-port = 3000
-connection = TCPSocket.open(hostname, port)
+$port = ARGV[0]
+connection = TCPSocket.open(hostname, $port)
 Client.new(connection)

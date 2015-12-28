@@ -21,9 +21,12 @@ class ClientSideHandler
             return
 
         when /\APUT_FILE:\s*(\w*\.\w*).*\s*\z/
-            @client_filesystem.put($1, server)
+            server.puts "LOCK_REQUIRED: #{$1}"
             return
 
+        when /\AWRITE_FILE:\s*(\w*\.\w*).*\s*\z/
+            @client_filesystem.put($1, server)
+            return
         else
             server.puts "#{request}"
             return
@@ -38,14 +41,21 @@ class ClientSideHandler
             return @client_filesystem.get($1, server)
             
         when /\APUT_FILE:\s*(\w*\.\w*).*\s*\z/
-            response = server.gets
             puts "#{response}"
             return
 
-        when /\ALOCK:\s*(\w*)/
-            response = server.gets
-            puts "#{response}"
+        when /\ALOCK_REQUIRED:\s*(\w*\.\w*)\s*([0-9])*\z/
+            $lock = $2
+            if $lock.to_i == 0
+                server_request = "WRITE_FILE: #{$1}" 
+                value = request(server, server_request)
+            else
+                puts "This file has a lock placed on it.\nUnable to put the file on the server!"
+            end
             return
+
+        when /\ALOCKED:.*\z/
+            puts "#{response}"
 
         else
             puts "#{response}"

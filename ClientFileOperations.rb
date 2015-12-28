@@ -2,7 +2,7 @@ require 'uri'
 
 class ClientFileOperations
 
-    def initialize() #initialize(dir_ip, dir_port, port_no)
+    def initialize()
         @root_dir = "client_file_directory"
         create_directory
 
@@ -31,7 +31,7 @@ class ClientFileOperations
             file.close
             #File.delete(path) # Optional Delete file locally?
         else
-            puts "ERROR:#{filename} does not exist"
+            puts "CLIENT ERROR:#{filename} does not exist\nTry again!"
         end
     end
 

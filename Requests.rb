@@ -19,7 +19,7 @@ class Requests
             return
 
         when /\AGET_AND_LOCK_FILE:\s*(\w*\.\w*).*\s*\z/
-            @filesystem.get_and_lock($1, client)
+            @filesystem.get_and_lock($1, client, otherServerPorts)
             return
 
         when /\APUT_FILE:\s*(\w*\.\w*).*\s*\z/
@@ -35,6 +35,14 @@ class Requests
                 end
             else
                 client.puts "LOCKED: A lock is acquired on this file. Cannot write to this file at the moment.\n"
+            end
+            return
+
+        when /\ALOCK_REQUIRED:\s*(\w*\.\w*).*\s*\z/
+            client_has_lock = @filesystem.lock_required($1, client)
+            client.puts "#{request} #{client_has_lock}"
+            if client_has_lock.to_i == 0
+                return "wait"
             end
             return 
         
@@ -56,7 +64,12 @@ class Requests
             client.puts "Happy file editing #{$1}\n"
             return
 
+        when /\APROPAGATE_LOCKS:\s(\w*\.\w*)\s(#<.*)\z/
+            @filesystem.add_to_locks($1, client)
+            return
+
         else
+            puts request
             client.puts "ERROR_CODE:4xx (Even though this isn't HTTP)"
             client.puts "ERROR:Malformatted request"
             return

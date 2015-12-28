@@ -56,6 +56,10 @@ class Server
         response_neccessary(client, msg)
       else
         receipt = @fileRequests.request(client, msg, @otherServerPorts)
+        if receipt == "wait" # Wait for Client to send file know that it knows it can write to this memory
+          msg = client.gets.chomp
+          @fileRequests.request(client, msg, @otherServerPorts)
+        end
       end
       client.puts "Read from or write to the server using:\n
        READ_FILE: 'name_of_file',\n
