@@ -24,29 +24,45 @@ class FileOperations
             end
             client.puts "#{URI.escape(file_contents)}"
             file.close
+            client.puts "Use an editor of your choice to read the file #{filename} and make local changes ONLY\n"
         else
             client.puts "ERROR:#{filename} does not exist"
         end
     end
 
     def get_and_lock(filename, client)
-        @mutex_locks
         path = File.expand_path("../#{@root_dir}/#{filename}", __FILE__)
         if File.file?(path)
+            if @mutex_locks[filename]    # Check if file is locked
+                unless @mutex_locks.fetch(filename) == client
+                    client.puts "LOCKED: A lock is acquired on this file. Cannot write at the time being"
+                    return
+                end
+            else   
+            unless @mutex_locks[filename]
+                @mutex_locks = {filename => client}
+            end
             file = File.open(path, 'r')
             file_contents = file.read
+            client.puts "READ_FILE: #{filename}"
             client.puts "#{URI.escape(file_contents)}"
             file.close
+            client.puts "Use an editor of your choice to edit the file #{filename}. You have acquired a lock on this file\n"
+            end
         else
             client.puts "ERROR:#{filename} does not exist"
         end
     end
 
     def put(filename, client)
-        puts (filename)
-        path = File.expand_path("../#{@root_dir}/#{filename}", __FILE__)
+        path = File.expand_path("../#{@root_dir}/#{filename}", __FILE__) 
         if not File.exists?("#{path}")
           client.puts "New file named #{filename} created\n"
+        end
+        if @mutex_locks[filename]    # Check if file is locked
+            unless @mutex_locks.fetch(filename) == client
+                return 0
+            end
         end
         file = File.open(path, 'wb')
         content = client.gets
@@ -54,6 +70,10 @@ class FileOperations
         puts "Contents written to #{filename} on this server\n"
         client.puts "Contents written to #{filename} on the server\n"
         file.close
+        if @mutex_locks[filename]    # Check if lock needs to be released
+            @mutex_locks.delete(filename)
+        end
+        return 1
     end
 
 end

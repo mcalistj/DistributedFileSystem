@@ -16,6 +16,10 @@ class ClientSideHandler
             server.puts(request)
             return
 
+        when /\AGET_AND_LOCK_FILE:*/
+            server.puts(request)
+            return
+
         when /\APUT_FILE:\s*(\w*\.\w*).*\s*\z/
             @client_filesystem.put($1, server)
             return
@@ -34,6 +38,11 @@ class ClientSideHandler
             return @client_filesystem.get($1, server)
             
         when /\APUT_FILE:\s*(\w*\.\w*).*\s*\z/
+            response = server.gets
+            puts "#{response}"
+            return
+
+        when /\ALOCK:\s*(\w*)/
             response = server.gets
             puts "#{response}"
             return

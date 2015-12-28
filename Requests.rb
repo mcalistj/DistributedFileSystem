@@ -24,13 +24,17 @@ class Requests
 
         when /\APUT_FILE:\s*(\w*\.\w*).*\s*\z/
             filename = $1
-            @filesystem.put($1, client)
-            request =  "REPLICATE_FILE: " + filename
-            otherServerPorts.each do |port|
-                replica_server = TCPSocket.open("localhost", port)
-                replica_server.puts(request)
-                @filesystem.read(filename, replica_server, 1)
-                replica_server.close
+            success = @filesystem.put($1, client)
+            if success == 1
+                request = "REPLICATE_FILE: " + filename
+                otherServerPorts.each do |port|
+                    replica_server = TCPSocket.open("localhost", port)
+                    replica_server.puts(request)
+                    @filesystem.read(filename, replica_server, 1)
+                    replica_server.close
+                end
+            else
+                client.puts "LOCKED: A lock is acquired on this file. Cannot write to this file at the moment.\n"
             end
             return 
         

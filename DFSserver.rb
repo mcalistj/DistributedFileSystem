@@ -59,7 +59,8 @@ class Server
       end
       client.puts "Read from or write to the server using:\n
        READ_FILE: 'name_of_file',\n
-       or PUT_FILE: 'name_of_file'"
+       GET_AND_LOCK_FILE: 'name_of_file',\n
+       PUT_FILE: 'name_of_file'"
     }
   end
 end

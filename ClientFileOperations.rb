@@ -19,12 +19,10 @@ class ClientFileOperations
         msg = server.gets
         File.write(file, URI.unescape(msg))
         file.close
-        puts "Use an editor of your choose to read the file #{filename} and make local changes ONLY\n"
     end
 
     def put(filename, server)
         path = File.expand_path("../#{@root_dir}/#{filename}", __FILE__)
-
         if File.file?(path)
             file = File.open(path, 'r')
             file_contents = file.read
