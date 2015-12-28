@@ -14,17 +14,18 @@ class Requests
     	# \z - Matches end of string
     	# \s* - Matches any number of whitespaces
         case request
-        when /\AGET_FILE:\s*(\w*\.\w*).*\s*\z/
-            @filesystem.get($1, client)
+        when /\AREAD_FILE:\s*(\w*\.\w*).*\s*\z/
+            @filesystem.read($1, client)
             return
 
         when /\APUT_FILE:\s*(\w*\.\w*).*\s*\z/
+            filename = $1
             @filesystem.put($1, client)
-            request.sub! "PUT_FILE: ", "REPLICATE_FILE: "
+            request =  "REPLICATE_FILE: " + filename
             otherServerPorts.each do |port|
                 replica_server = TCPSocket.open("localhost", port)
                 replica_server.puts(request)
-                @filesystem.get("harry.txt", replica_server)
+                @filesystem.read(filename, replica_server)
                 replica_server.close
             end
             return 

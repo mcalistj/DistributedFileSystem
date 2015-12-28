@@ -40,9 +40,6 @@ class Server
   def run
     loop {
       Thread.start(@server.accept) do | client |
-        #nick_name = client.gets.chomp.to_sym
-        #puts "#{nick_name} #{client}"
-        #client.puts "Connection established! Happy file editing"
         listen_user_messages( client )
       end
     }.join
@@ -50,11 +47,6 @@ class Server
 
   def listen_user_messages( client )
     loop {
-      #first_msg = client.gets.chomp
-      #@fileRequests.request(client, first_msg, @otherServerPorts)
-      #client.puts "Read from or write to the server using:\n
-       #GET_FILE: 'name_of_file',\n
-       #or PUT_FILE: 'name_of_file'"
       msg = client.gets.chomp
       if msg.include? "KILL_SERVICE" then
         client.puts "Server shutdown"

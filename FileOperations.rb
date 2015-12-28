@@ -13,12 +13,23 @@ class FileOperations
     	Dir.mkdir(directory_name) unless File.exists?(directory_name)
     end
 
-    def get(filename, client)
+    def read(filename, client)
         path = File.expand_path("../#{@root_dir}/#{filename}", __FILE__)
         if File.file?(path)
             file = File.open(path, 'r')
             file_contents = file.read
-            #client.puts "GET_FILE: #{filename}"
+            client.puts "#{URI.escape(file_contents)}"
+            file.close
+        else
+            client.puts "ERROR:#{filename} does not exist"
+        end
+    end
+
+    def get_and_lock(filename, client)
+        path = File.expand_path("../#{@root_dir}/#{filename}", __FILE__)
+        if File.file?(path)
+            file = File.open(path, 'r')
+            file_contents = file.read
             client.puts "#{URI.escape(file_contents)}"
             file.close
         else
@@ -32,7 +43,6 @@ class FileOperations
         if not File.exists?("#{path}")
           client.puts "New file named #{filename} created\n"
         end
-        puts (path)
         file = File.open(path, 'wb')
         content = client.gets
         File.write(file, URI.unescape(content))
