@@ -25,7 +25,6 @@ class ClientFileOperations
 
     def put(filename, server)
         path = File.expand_path("../#{@root_dir}/#{filename}", __FILE__)
-        puts "#{path}"
 
         if File.file?(path)
             file = File.open(path, 'r')
@@ -33,7 +32,7 @@ class ClientFileOperations
             server.puts "PUT_FILE: #{filename}"
             server.puts "#{URI.escape(file_contents)}"
             file.close
-            File.delete(path) # Optional Delete file locally?
+            #File.delete(path) # Optional Delete file locally?
         else
             puts "ERROR:#{filename} does not exist"
         end

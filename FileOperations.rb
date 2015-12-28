@@ -3,7 +3,7 @@ require 'uri'
 class FileOperations
 
     def initialize() #initialize(dir_ip, dir_port, port_no)
-        @root_dir = "server_file_directory"
+        @root_dir = "server_file_directory#{$port}"
         create_directory
 
     end
@@ -15,12 +15,10 @@ class FileOperations
 
     def get(filename, client)
         path = File.expand_path("../#{@root_dir}/#{filename}", __FILE__)
-        puts "#{path}"
-
         if File.file?(path)
             file = File.open(path, 'r')
             file_contents = file.read
-            client.puts "GET_FILE: #{filename}"
+            #client.puts "GET_FILE: #{filename}"
             client.puts "#{URI.escape(file_contents)}"
             file.close
         else
@@ -29,15 +27,16 @@ class FileOperations
     end
 
     def put(filename, client)
+        puts (filename)
         path = File.expand_path("../#{@root_dir}/#{filename}", __FILE__)
         if not File.exists?("#{path}")
           client.puts "New file named #{filename} created\n"
         end
+        puts (path)
         file = File.open(path, 'wb')
         content = client.gets
-        client.puts "PUT_FILE: #{filename}"
         File.write(file, URI.unescape(content))
-        puts "Contents written to #{filename} on this machine\n"
+        puts "Contents written to #{filename} on this server\n"
         client.puts "Contents written to #{filename} on the server\n"
         file.close
     end

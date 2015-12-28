@@ -25,6 +25,9 @@ class Client
 
   def send
     puts "Enter the username:"
+    msg = $stdin.gets.chomp
+    msg = "USERNAME: #{msg}"
+    @file_operations.request(@server, msg)
     @request = Thread.new do
       loop {
         msg = $stdin.gets.chomp
