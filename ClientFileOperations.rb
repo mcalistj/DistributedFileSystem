@@ -17,10 +17,9 @@ class ClientFileOperations
         path = File.expand_path("../#{@root_dir}/#{filename}", __FILE__)
         file = File.open(path, 'wb')
         msg = server.gets
-        puts "#{msg}"
         File.write(file, URI.unescape(msg))
         file.close
-        puts "Use an editor of your choose to modify the file #{filename}\n"
+        puts "Use an editor of your choose to read the file #{filename} and make local changes ONLY\n"
     end
 
     def put(filename, server)

@@ -14,7 +14,7 @@ class Server
 
   def identitfy_other_servers(this_server_ip)
   # Try establish possible 'distributed file server' ports
-  # This CLI mustbe run from elevated privilege. This has only been tested on a Windows OS
+  # This CLI must be run from elevated privilege. This has only been tested on a Windows OS
   # This solution assumes all Distributed File Servers are running on the same machine 
     possible_ports = []
     pipe = IO.popen("netstat -abno | find \"[::1]\" | find \"LISTENING\" ") 
@@ -58,7 +58,7 @@ class Server
         receipt = @fileRequests.request(client, msg, @otherServerPorts)
       end
       client.puts "Read from or write to the server using:\n
-       GET_FILE: 'name_of_file',\n
+       READ_FILE: 'name_of_file',\n
        or PUT_FILE: 'name_of_file'"
     }
   end

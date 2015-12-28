@@ -4,6 +4,7 @@ class FileOperations
 
     def initialize() #initialize(dir_ip, dir_port, port_no)
         @root_dir = "server_file_directory#{$port}"
+        @mutex_locks = Hash.new
         create_directory
 
     end
@@ -13,11 +14,14 @@ class FileOperations
     	Dir.mkdir(directory_name) unless File.exists?(directory_name)
     end
 
-    def read(filename, client)
+    def read(filename, client, replicate)
         path = File.expand_path("../#{@root_dir}/#{filename}", __FILE__)
         if File.file?(path)
             file = File.open(path, 'r')
             file_contents = file.read
+            unless replicate == 1
+                client.puts "READ_FILE: #{filename}"
+            end
             client.puts "#{URI.escape(file_contents)}"
             file.close
         else
@@ -26,6 +30,7 @@ class FileOperations
     end
 
     def get_and_lock(filename, client)
+        @mutex_locks
         path = File.expand_path("../#{@root_dir}/#{filename}", __FILE__)
         if File.file?(path)
             file = File.open(path, 'r')

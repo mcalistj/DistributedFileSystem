@@ -15,7 +15,11 @@ class Requests
     	# \s* - Matches any number of whitespaces
         case request
         when /\AREAD_FILE:\s*(\w*\.\w*).*\s*\z/
-            @filesystem.read($1, client)
+            @filesystem.read($1, client, 0)
+            return
+
+        when /\AGET_AND_LOCK_FILE:\s*(\w*\.\w*).*\s*\z/
+            @filesystem.get_and_lock($1, client)
             return
 
         when /\APUT_FILE:\s*(\w*\.\w*).*\s*\z/
@@ -25,13 +29,12 @@ class Requests
             otherServerPorts.each do |port|
                 replica_server = TCPSocket.open("localhost", port)
                 replica_server.puts(request)
-                @filesystem.read(filename, replica_server)
+                @filesystem.read(filename, replica_server, 1)
                 replica_server.close
             end
             return 
         
         when /\AREPLICATE_FILE:\s*(\w*\.\w*).*\s*\z/
-            puts $1
             return @filesystem.put($1, client)
 
         when /\AIDENTIFY_DFS: I am listening at (\w*) on (\w*)\z/   

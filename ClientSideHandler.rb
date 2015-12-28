@@ -12,7 +12,7 @@ class ClientSideHandler
     	# \z - Matches end of string
     	# \s* - Matches any number of whitespaces
         case request
-        when /\AGET_FILE:*/
+        when /\AREAD_FILE:*/
             server.puts(request)
             return
 
@@ -30,7 +30,7 @@ class ClientSideHandler
 
     def response(server, response)
         case response
-        when /\AGET_FILE:\s*(\w*\.\w*).*\s*\z/
+        when /\AREAD_FILE:\s*(\w*\.\w*).*\s*\z/
             return @client_filesystem.get($1, server)
             
         when /\APUT_FILE:\s*(\w*\.\w*).*\s*\z/
