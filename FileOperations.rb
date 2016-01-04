@@ -3,11 +3,11 @@ require 'socket'
 
 class FileOperations
 
-    attr_writer :mutex_locks
+    attr_writer :locks
 
     def initialize() #initialize(dir_ip, dir_port, port_no)
         @root_dir = "server_file_directory#{$port}"
-        @mutex_locks = Hash.new
+        @locks = Hash.new
         create_directory
 
     end
@@ -36,19 +36,19 @@ class FileOperations
     def get_and_lock(filename, client, otherServerPorts)
         path = File.expand_path("../#{@root_dir}/#{filename}", __FILE__)
         if File.file?(path)
-            if @mutex_locks[filename]    # Check if file is locked
-                unless @mutex_locks.fetch(filename) == client
+            if @locks[filename]    # Check if file is locked
+                unless @locks.fetch(filename) == client
                     client.puts "LOCKED: A lock is acquired on this file. Cannot write at the time being"
                     return
                 end
             else   
-            unless @mutex_locks[filename]
-                if @mutex_locks.empty?
-                    @mutex_locks = {filename => client}
+            unless @locks[filename]
+                if @locks.empty?
+                    @locks = {filename => client}
                 else
-                    @mutex_locks["#{filename}"] = client
+                    @locks["#{filename}"] = client
                 end
-                puts @mutex_locks
+                puts @locks
                 propagate_all_locks(filename, client, otherServerPorts)
             end
             file = File.open(path, 'r')
@@ -68,8 +68,8 @@ class FileOperations
         if not File.exists?("#{path}")
           client.puts "New file named #{filename} created\n"
         end
-        if @mutex_locks[filename]    # Check if file is locked
-            unless @mutex_locks.fetch(filename) == client
+        if @locks[filename]    # Check if file is locked
+            unless @locks.fetch(filename) == client
                 return 0
             end
         end
@@ -79,8 +79,8 @@ class FileOperations
         puts "Contents written to #{filename} on this server\n"
         client.puts "Contents written to #{filename} on the server\n"
         file.close
-        if @mutex_locks[filename]    # Check if lock needs to be released
-            @mutex_locks.delete(filename)
+        if @locks[filename]    # Check if lock needs to be released
+            @locks.delete(filename)
         end
         return 1
     end
@@ -90,9 +90,9 @@ class FileOperations
         if not File.exists?("#{path}")
           return 0
         end
-        puts @mutex_locks
-        if @mutex_locks[filename]    # Check if file is locked
-            unless @mutex_locks.fetch(filename) == client
+        puts @locks
+        if @locks[filename]    # Check if file is locked
+            unless @locks.fetch(filename) == client
                 return 1
             end
         end
@@ -113,12 +113,12 @@ class FileOperations
     end
 
     def add_to_locks(filename, client)
-        if @mutex_locks.empty?
-            @mutex_locks = {filename => client}
+        if @locks.empty?
+            @locks = {filename => client}
         else
-            @mutex_locks["#{filename}"] = client
+            @locks["#{filename}"] = client
         end
-        puts @mutex_locks
+        puts @locks
     end
 
 end
